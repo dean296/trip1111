@@ -834,14 +834,14 @@ const ReservationView = ({
                     value={phoneNumber} 
                     onChange={handlePhoneChange}
                     placeholder="방문자의 휴대폰번호를 입력해주세요."
-                    className="flex-1 py-2 focus:outline-none font-bold text-gray-800 placeholder:text-gray-300 placeholder:font-medium bg-transparent"
+                    className="flex-1 py-2 focus:outline-none font-bold text-gray-800 placeholder:text-gray-300 placeholder:font-medium bg-transparent min-w-0"
                   />
                   <button 
                     type="button"
                     onClick={handleRequestVerification}
-                    className={`px-3 py-1.5 text-[11px] font-bold rounded-md whitespace-nowrap transition-colors mb-1 ${isPhoneValid ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400'}`}
+                    className={`px-3 py-1.5 text-[11px] font-bold rounded-md whitespace-nowrap transition-colors mb-1 flex-shrink-0 ${isVerified ? 'bg-gray-100 text-gray-400' : (isPhoneValid ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400')}`}
                   >
-                    인증받기
+                    인증하기
                   </button>
                 </div>
               </div>
@@ -857,12 +857,12 @@ const ReservationView = ({
                       placeholder="인증번호를 입력해주세요"
                       autoComplete="one-time-code"
                       inputMode="numeric"
-                      className="flex-1 py-2 focus:outline-none font-bold text-gray-800 placeholder:text-gray-300 placeholder:font-medium bg-transparent"
+                      className="flex-1 py-2 focus:outline-none font-bold text-gray-800 placeholder:text-gray-300 placeholder:font-medium bg-transparent min-w-0"
                     />
                     <button 
                       type="button"
                       onClick={() => isCodeValid && setIsVerified(true)}
-                      className={`px-3 py-1.5 text-[11px] font-bold rounded-md whitespace-nowrap transition-colors mb-1 ${isVerified ? 'bg-gray-100 text-gray-400' : (isCodeValid ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400')}`}
+                      className={`px-3 py-1.5 text-[11px] font-bold rounded-md whitespace-nowrap transition-colors mb-1 flex-shrink-0 ${isVerified ? 'bg-gray-100 text-gray-400' : (isCodeValid ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-400')}`}
                     >
                       {isVerified ? '인증완료' : '인증번호 확인'}
                     </button>
@@ -1445,7 +1445,7 @@ const App: React.FC = () => {
                 </h3>
                 <p className="text-[14.5px] text-gray-600 leading-relaxed font-medium">
                   태안 엘플레이트 풀빌라는 단순한 숙박을 넘어 '머무름의 미학'을 지향합니다. 
-                  객실의 통창 너머로 펼쳐지는 서해안의 낙조는 일상에 지친 마음을 달래주며, 
+                  객실의 통창 너벌 펼쳐지는 서해안의 낙조는 일상에 지친 마음을 달래주며, 
                   현대적인 건축 미학과 자연이 조화를 이루는 인테리어는 방문하시는 모든 분들께 
                   갤러리에 온 듯한 영감을 제공합니다.
                 </p>
