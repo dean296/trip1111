@@ -21,7 +21,7 @@ import {
   Utensils, 
   Camera,
   Clock,
-  ExternalLink
+  MessageCircle
 } from 'lucide-react';
 
 // --- Reusable Components ---
@@ -217,35 +217,117 @@ const RoomInfoModal = ({ isOpen, onClose, room, onOpenGallery }: { isOpen: boole
   );
 };
 
-const DateRangeModal = ({ isOpen, onClose, startDate, endDate }: { isOpen: boolean, onClose: () => void, startDate: Date, endDate: Date }) => {
+const DateRangeModal = ({ isOpen, onClose, startDate, endDate, onSelect }: { isOpen: boolean, onClose: () => void, startDate: Date, endDate: Date, onSelect: (start: Date, end: Date) => void }) => {
   if (!isOpen) return null;
+  const [viewDate, setViewDate] = useState(new Date(startDate));
+  const [localStart, setLocalStart] = useState<Date | null>(startDate);
+  const [localEnd, setLocalEnd] = useState<Date | null>(endDate);
+
   const formatDate = (date: Date) => `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+  
+  const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+
+  const handleDateClick = (day: number) => {
+    const clickedDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
+    if (!localStart || (localStart && localEnd)) {
+      setLocalStart(clickedDate);
+      setLocalEnd(null);
+    } else if (clickedDate > localStart) {
+      setLocalEnd(clickedDate);
+    } else {
+      setLocalStart(clickedDate);
+      setLocalEnd(null);
+    }
+  };
+
+  const days = [];
+  const totalDays = getDaysInMonth(viewDate.getFullYear(), viewDate.getMonth());
+  const firstDay = getFirstDayOfMonth(viewDate.getFullYear(), viewDate.getMonth());
+
+  for (let i = 0; i < firstDay; i++) days.push(null);
+  for (let i = 1; i <= totalDays; i++) days.push(i);
+
+  const isSelected = (day: number) => {
+    if (!day) return false;
+    const d = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
+    if (localStart && d.getTime() === localStart.getTime()) return true;
+    if (localEnd && d.getTime() === localEnd.getTime()) return true;
+    return false;
+  };
+
+  const isInRange = (day: number) => {
+    if (!day || !localStart || !localEnd) return false;
+    const d = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
+    return d > localStart && d < localEnd;
+  };
+
   return (
     <div className="fixed inset-0 z-[150] flex items-end justify-center bg-black/50" onClick={onClose}>
-      <div className="bg-white w-full max-w-[480px] h-[60vh] rounded-t-3xl flex flex-col p-6 animate-in slide-in-from-bottom duration-300 shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-8 shrink-0"><h3 className="text-xl font-bold">일정 선택</h3><button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button></div>
-        <div className="flex-1 overflow-y-auto space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-100"><p className="text-xs text-gray-400 mb-1 font-bold">체크인</p><p className="text-sm font-bold text-gray-800">{formatDate(startDate)}</p></div>
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-100"><p className="text-xs text-gray-400 mb-1 font-bold">체크아웃</p><p className="text-sm font-bold text-gray-800">{formatDate(endDate)}</p></div>
+      <div className="bg-white w-full max-w-[480px] h-[75vh] rounded-t-3xl flex flex-col p-6 animate-in slide-in-from-bottom duration-300 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6 shrink-0"><h3 className="text-xl font-bold">일정 선택</h3><button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button></div>
+        
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100"><p className="text-[10px] text-gray-400 mb-0.5 font-bold">체크인</p><p className="text-xs font-bold text-gray-800">{localStart ? formatDate(localStart) : '-'}</p></div>
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100"><p className="text-[10px] text-gray-400 mb-0.5 font-bold">체크아웃</p><p className="text-xs font-bold text-gray-800">{localEnd ? formatDate(localEnd) : '-'}</p></div>
           </div>
-          <div className="py-10 text-center"><Calendar size={48} className="mx-auto text-blue-100 mb-4" /><p className="text-sm text-gray-500 font-medium">원하는 날짜를 선택해주세요.</p></div>
+
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4 px-2">
+              <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="p-1"><ChevronLeft size={20} /></button>
+              <h4 className="font-bold text-gray-900">{viewDate.getFullYear()}년 {viewDate.getMonth() + 1}월</h4>
+              <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="p-1"><ChevronRightIcon size={20} /></button>
+            </div>
+            <div className="grid grid-cols-7 text-center text-[11px] font-bold text-gray-400 mb-2">
+              {['일','월','화','수','목','금','토'].map(d => <div key={d} className="py-2">{d}</div>)}
+            </div>
+            <div className="grid grid-cols-7 gap-y-1">
+              {days.map((day, i) => (
+                <div 
+                  key={i} 
+                  onClick={() => day && handleDateClick(day)}
+                  className={`
+                    relative h-11 flex items-center justify-center text-sm font-medium cursor-pointer rounded-lg transition-all
+                    ${!day ? 'pointer-events-none' : ''}
+                    ${isSelected(day!) ? 'bg-blue-600 text-white font-bold' : 'text-gray-700 hover:bg-gray-100'}
+                    ${isInRange(day!) ? 'bg-blue-50 text-blue-600 rounded-none' : ''}
+                  `}
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <button onClick={onClose} className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl mt-4 shadow-lg active:scale-[0.98] transition-all">선택 완료</button>
+
+        <button 
+          onClick={() => {
+            if (localStart && localEnd) {
+              onSelect(localStart, localEnd);
+              onClose();
+            }
+          }} 
+          disabled={!localStart || !localEnd}
+          className={`w-full font-bold py-4 rounded-2xl mt-4 shadow-lg transition-all ${localStart && localEnd ? 'bg-blue-600 text-white active:scale-[0.98]' : 'bg-gray-200 text-gray-400'}`}
+        >
+          선택 완료
+        </button>
       </div>
     </div>
   );
 };
 
-const GuestModal = ({ isOpen, onClose, adults, children, onSelect }: { isOpen: boolean, onClose: () => void, adults: number, children: number, onSelect: (a: number, c: number) => void }) => {
+const GuestModal = ({ isOpen, onClose, adults, children, infants, onSelect }: { isOpen: boolean, onClose: () => void, adults: number, children: number, infants: number, onSelect: (a: number, c: number, i: number) => void }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[150] flex items-end justify-center bg-black/50" onClick={onClose}>
-      <div className="bg-white w-full max-w-[480px] h-[50vh] rounded-t-3xl flex flex-col p-6 animate-in slide-in-from-bottom duration-300 shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-white w-full max-w-[480px] h-[60vh] rounded-t-3xl flex flex-col p-6 animate-in slide-in-from-bottom duration-300 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-8 shrink-0"><h3 className="text-xl font-bold">인원 선택</h3><button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button></div>
         <div className="space-y-8 flex-1">
-          <div className="flex justify-between items-center"><div><p className="font-bold text-gray-900">성인</p><p className="text-xs text-gray-400 font-medium">만 13세 이상</p></div><div className="flex items-center gap-5"><button onClick={() => onSelect(Math.max(1, adults - 1), children)} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-400 active:bg-gray-50"><Minus size={18} /></button><span className="font-bold text-lg w-4 text-center">{adults}</span><button onClick={() => onSelect(adults + 1, children)} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-900 active:bg-gray-50"><Plus size={18} /></button></div></div>
-          <div className="flex justify-between items-center"><div><p className="font-bold text-gray-900">아동</p><p className="text-xs text-gray-400 font-medium">만 12세 이하</p></div><div className="flex items-center gap-5"><button onClick={() => onSelect(adults, Math.max(0, children - 1))} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-400 active:bg-gray-50"><Minus size={18} /></button><span className="font-bold text-lg w-4 text-center">{children}</span><button onClick={() => onSelect(adults, children + 1)} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-900 active:bg-gray-50"><Plus size={18} /></button></div></div>
+          <div className="flex justify-between items-center"><div><p className="font-bold text-gray-900">성인</p><p className="text-xs text-gray-400 font-medium">만 13세 이상</p></div><div className="flex items-center gap-5"><button onClick={() => onSelect(Math.max(1, adults - 1), children, infants)} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-400 active:bg-gray-50"><Minus size={18} /></button><span className="font-bold text-lg w-4 text-center">{adults}</span><button onClick={() => onSelect(adults + 1, children, infants)} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-900 active:bg-gray-50"><Plus size={18} /></button></div></div>
+          <div className="flex justify-between items-center"><div><p className="font-bold text-gray-900">아동</p><p className="text-xs text-gray-400 font-medium">만 2세 ~ 12세</p></div><div className="flex items-center gap-5"><button onClick={() => onSelect(adults, Math.max(0, children - 1), infants)} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-400 active:bg-gray-50"><Minus size={18} /></button><span className="font-bold text-lg w-4 text-center">{children}</span><button onClick={() => onSelect(adults, children + 1, infants)} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-900 active:bg-gray-50"><Plus size={18} /></button></div></div>
+          <div className="flex justify-between items-center"><div><p className="font-bold text-gray-900">유아</p><p className="text-xs text-gray-400 font-medium">만 2세 미만</p></div><div className="flex items-center gap-5"><button onClick={() => onSelect(adults, children, Math.max(0, infants - 1))} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-400 active:bg-gray-50"><Minus size={18} /></button><span className="font-bold text-lg w-4 text-center">{infants}</span><button onClick={() => onSelect(adults, children, infants + 1)} className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full text-gray-900 active:bg-gray-50"><Plus size={18} /></button></div></div>
         </div>
         <button onClick={onClose} className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl mt-auto shadow-lg active:scale-[0.98] transition-all">확인</button>
       </div>
@@ -271,6 +353,7 @@ const App: React.FC = () => {
   const [endDate, setEndDate] = useState<Date>(new Date(Date.now() + 86400000));
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
+  const [infants, setInfants] = useState(0);
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
   const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false);
@@ -404,8 +487,21 @@ const App: React.FC = () => {
           onReviewClick={handleReviewClick}
         />
         <RoomInfoModal isOpen={isRoomInfoModalOpen} onClose={() => setIsRoomInfoModalOpen(false)} room={roomD} onOpenGallery={openGallery} />
-        <DateRangeModal isOpen={isDateModalOpen} onClose={() => setIsDateModalOpen(false)} startDate={startDate} endDate={endDate} />
-        <GuestModal isOpen={isGuestModalOpen} onClose={() => setIsGuestModalOpen(false)} adults={adults} children={children} onSelect={(a, c) => {setAdults(a); setChildren(c);}} />
+        <DateRangeModal 
+          isOpen={isDateModalOpen} 
+          onClose={() => setIsDateModalOpen(false)} 
+          startDate={startDate} 
+          endDate={endDate} 
+          onSelect={(s, e) => { setStartDate(s); setEndDate(e); }}
+        />
+        <GuestModal 
+          isOpen={isGuestModalOpen} 
+          onClose={() => setIsGuestModalOpen(false)} 
+          adults={adults} 
+          children={children} 
+          infants={infants}
+          onSelect={(a, c, i) => { setAdults(a); setChildren(c); setInfants(i); }} 
+        />
         <ImageGalleryModal isOpen={isGalleryOpen} onClose={() => setIsGalleryOpen(false)} images={currentGalleryImages} activeIndex={galleryActiveIndex} setActiveIndex={setGalleryActiveIndex} />
 
         <section className="w-full">
@@ -505,7 +601,7 @@ const App: React.FC = () => {
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><span className="w-1 h-5 bg-blue-600 rounded-full"></span>객실 선택</h2>
           <div className="flex gap-2 mb-6">
             <button onClick={() => setIsDateModalOpen(true)} className="flex-1 flex items-center justify-center border border-gray-200 bg-white rounded-lg py-3 px-3 text-sm font-bold text-gray-800 shadow-sm active:scale-95 transition-all"><Calendar size={16} className="mr-2 text-blue-600" />{formatDate(startDate)}~{formatDate(endDate)}, {diffDays}박</button>
-            <button onClick={() => setIsGuestModalOpen(true)} className="flex-1 flex items-center justify-center border border-gray-200 bg-white rounded-lg py-3 px-3 text-sm font-bold text-gray-800 shadow-sm active:scale-95 transition-all"><Users size={16} className="mr-2 text-blue-600" />성인 {adults}, 아동 {children}</button>
+            <button onClick={() => setIsGuestModalOpen(true)} className="flex-1 flex items-center justify-center border border-gray-200 bg-white rounded-lg py-3 px-3 text-sm font-bold text-gray-800 shadow-sm active:scale-95 transition-all"><Users size={16} className="mr-2 text-blue-600" />인원 {adults+children+infants}명</button>
           </div>
           <div className="border border-gray-100 rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
             <MosaicGallery images={roomD.images} totalCount={20} id="roomD" onOpenGallery={(idx) => openGallery(roomD.images, idx)} />
@@ -573,7 +669,7 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* --- 개선된 상세 숙소 정보 섹션 --- */}
+        {/* --- 상세 숙소 정보 섹션 --- */}
         <section className="px-6 py-12 bg-white border-t border-gray-100">
           <div className="max-w-[420px] mx-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight flex items-center gap-3">
@@ -635,20 +731,12 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* --- 사용자 요청에 따른 푸터 업데이트 --- */}
         <footer className="bg-[#f2f2f2] border-t border-gray-200 px-6 py-10">
-          <div className="mb-6">
-            <h2 className="text-[32px] font-bold text-[#444] tracking-tight">1833-9306</h2>
-          </div>
-          
           <div className="space-y-1.5 text-[12px] text-[#777] font-medium leading-relaxed">
             <div className="flex items-center flex-wrap gap-x-2">
               <span>트립일레븐</span>
               <span className="text-gray-300">|</span>
               <span>서울 금천구 가산디지털1로 186 제이플라츠 903호</span>
-            </div>
-            <div>
-              <span>TEL: 1833-9306 (상담시간 오전 9시 30분 - 오후 10시)</span>
             </div>
             <div className="flex items-center flex-wrap gap-x-2">
               <span>대표명: 손기훈</span>
@@ -668,6 +756,14 @@ const App: React.FC = () => {
             </p>
           </div>
         </footer>
+
+        {/* --- 우측 하단 상담하기 플로팅 버튼 --- */}
+        <div className="fixed bottom-6 right-6 z-[120] animate-in slide-in-from-bottom duration-500">
+          <button className="bg-blue-600 text-white flex items-center gap-2 px-5 py-3.5 rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-all group">
+            <MessageCircle size={22} className="group-hover:rotate-12 transition-transform" />
+            <span className="font-bold text-[15px] tracking-tight">상담하기</span>
+          </button>
+        </div>
       </div>
     </div>
   );
