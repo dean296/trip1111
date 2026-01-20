@@ -149,10 +149,6 @@ const ReviewsModal = ({ isOpen, onClose, reviews, onReviewClick }: { isOpen: boo
           <h3 className="text-xl font-bold">전체 리뷰</h3>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
         </div>
-        <div className="bg-blue-50 p-4 rounded-xl mb-6 flex items-center gap-3 border border-blue-100">
-          <Gift className="text-blue-600" size={20} />
-          <p className="text-sm font-bold text-blue-800">포토 리뷰 작성 시 전 고객 1만원 할인권 증정!</p>
-        </div>
         <div className="flex-1 overflow-y-auto space-y-6 pr-1 hide-scrollbar">
           {reviews.map((review) => (
             <div 
@@ -519,7 +515,51 @@ const App: React.FC = () => {
             <MapPin size={16} className="mr-1 mt-0.5 shrink-0 text-blue-500" />
             <p>충청남도 태안군 남면 몽대로 359-3</p>
           </div>
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-2">
+
+          {/* --- 최저가 보장 카드 디자인 --- */}
+          <div className="bg-[#121212] p-5 rounded-2xl border border-gray-800 mb-4 shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 -mr-4 -mt-4 p-10 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all duration-700"></div>
+            
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-4 bg-[#FF4F4F] rounded-full shadow-[0_0_8px_rgba(255,79,79,0.8)]"></div>
+                  <h2 className="text-[12px] font-black text-[#FF4F4F] uppercase tracking-tighter leading-none">
+                    LOWEST PRICE <br /> GUARANTEE
+                  </h2>
+                </div>
+                
+                <div className="relative">
+                  <div className="bg-white text-black text-[10px] font-black px-2.5 py-1.5 rounded-xl shadow-lg animate-bounce whitespace-nowrap">
+                    고객센터 이용고객 대상
+                    <div className="absolute -bottom-1 right-3 w-2 h-2 bg-white rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-1 relative">
+                {/* 문구가 타이머와 겹치지 않도록 충분한 우측 패딩 부여 */}
+                <div className="pr-24">
+                  <h3 className="text-white text-2xl font-black tracking-tight leading-tight">24시간 한정</h3>
+                  <h3 className="text-[#FFEA00] text-2xl font-black tracking-tight leading-tight [text-shadow:0_0_15px_rgba(255,234,0,0.6)]">최저가 보장</h3>
+                </div>
+                
+                {/* 타이머 위치 상향 조정 및 절대 위치(absolute)로 고정하여 텍스트 래핑 방지 */}
+                <div className="absolute top-1 right-0 flex items-center gap-1.5 bg-red-500/10 px-2 py-1.5 rounded-lg border border-red-500/30">
+                  <Clock size={12} className="text-[#FFEA00]" />
+                  <span className="text-[13px] font-black font-mono text-[#FFEA00] tracking-tighter">{formatTime(secondsRemaining)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-[13px] text-gray-400 mt-4 leading-relaxed font-medium relative z-10 space-y-0.5">
+              <p>🎁 상담 고객 한정 특별가를 드립니다.</p>
+              <p>📣 타 예약사이트 대비 <span className="text-[#FF4F4F] font-black">최저가 보장</span></p>
+              <p>🏸 최저가를 발견하시면 차액을 보상해드립니다.</p>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mt-4">
             <h2 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
               <Zap size={14} className="text-blue-600" /> 숙소 소개
             </h2>
@@ -570,16 +610,7 @@ const App: React.FC = () => {
             </div>
             <button onClick={() => setIsReviewsModalOpen(true)} className="text-sm font-semibold text-gray-800 underline active:text-blue-600">전체보기</button>
           </div>
-          <div onClick={handleReviewClick} className="mb-4 bg-amber-50 border border-amber-100 rounded-xl p-3.5 flex items-center justify-between cursor-pointer active:scale-98 transition-transform shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="bg-white p-2 rounded-full shadow-sm text-amber-500 border border-amber-100 font-bold"><Gift size={18} /></div>
-              <div>
-                <p className="text-[12px] font-extrabold text-amber-900">베스트 리뷰어 선정 이벤트</p>
-                <p className="text-[11px] text-amber-700 font-medium">포토 리뷰 시 1만원 쿠폰 증정</p>
-              </div>
-            </div>
-            <ChevronRightIcon size={16} className="text-amber-400" />
-          </div>
+          
           <div className="flex flex-col space-y-3 pb-2">
             {reviews.slice(0, 3).map((review) => (
               <div key={review.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50 cursor-pointer transition-colors" onClick={handleReviewClick}>
@@ -669,7 +700,6 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* --- 상세 숙소 정보 섹션 --- */}
         <section className="px-6 py-12 bg-white border-t border-gray-100">
           <div className="max-w-[420px] mx-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight flex items-center gap-3">
