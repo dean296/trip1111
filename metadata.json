@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Taean El Plate Pool Villa Booking",
+  "description": "A high-fidelity replica of a luxury villa booking mobile web interface with detailed room selection, location mapping, and service information.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
