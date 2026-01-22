@@ -1438,56 +1438,33 @@ const App: React.FC = () => {
               <Info size={22} className="text-blue-600" /> 상세 숙소 정보
             </h2>
             
-            <div className="space-y-12">
+            <div className="space-y-10">
               <div>
-                <h3 className="text-[16px] font-bold text-gray-900 mb-3.5 flex items-center gap-2">
-                  <Camera size={18} className="text-blue-500/70" /> 공간의 가치
-                </h3>
+                <h3 className="text-[16px] font-bold text-gray-900 mb-3 tracking-tight">공간의 가치</h3>
                 <p className="text-[14.5px] text-gray-600 leading-relaxed font-medium">
                   태안 엘플레이트 풀빌라는 단순한 숙박을 넘어 '머무름의 미학'을 지향합니다. 
-                  객실의 통창 너벌 펼쳐지는 서해안의 낙조는 일상에 지친 마음을 달래주며, 
+                  객실의 통창 너머로 펼쳐지는 서해안의 낙조는 일상에 지친 마음을 달래주며, 
                   현대적인 건축 미학과 자연이 조화를 이루는 인테리어는 방문하시는 모든 분들께 
                   갤러리에 온 듯한 영감을 제공합니다.
                 </p>
               </div>
 
               <div>
-                <h3 className="text-[16px] font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Waves size={18} className="text-blue-500/70" /> 주요 시설 및 서비스
-                </h3>
-                <div className="space-y-4">
-                  <div className="p-5 bg-blue-50/40 rounded-2xl border border-blue-100/40">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-blue-600 rounded-lg text-white shadow-sm"><Waves size={18} /></div>
-                      <h4 className="text-[15px] font-bold text-gray-900">프라이빗 개별 온수풀</h4>
-                    </div>
-                    <p className="text-[13.5px] text-gray-600 leading-relaxed">사계절 내내 적정 온도가 유지되는 독채형 온수풀을 무료로 마음껏 이용하실 수 있습니다.</p>
-                  </div>
-                  <div className="p-5 bg-amber-50/40 rounded-2xl border border-amber-100/40">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-amber-500 rounded-lg text-white shadow-sm"><Utensils size={18} /></div>
-                      <h4 className="text-[15px] font-bold text-gray-900">웨버 가스 그릴 바베큐</h4>
-                    </div>
-                    <p className="text-[13.5px] text-gray-600 leading-relaxed">프라이빗 개별 테라스에서 최고급 웨버 그릴을 이용해 고품격 야외 다이닝을 즐겨보세요.</p>
-                  </div>
-                </div>
+                <h3 className="text-[16px] font-bold text-gray-900 mb-3 tracking-tight">주요 시설 및 서비스</h3>
+                <p className="text-[14.5px] text-gray-600 leading-relaxed font-medium">
+                  사계절 내내 적정 온도가 유지되는 독채형 온수풀을 무료로 마음껏 이용하실 수 있습니다. 
+                  또한 프라이빗 개별 테라스에는 최고급 웨버 가스 그릴이 구비되어 있어, 
+                  고품격 야외 다이닝과 바베큐 파티를 오롯이 즐기실 수 있습니다.
+                </p>
               </div>
 
-              <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200/60">
-                <h3 className="text-[14px] font-bold text-gray-900 mb-4 px-1">유의사항 및 안내</h3>
-                <ul className="space-y-3.5">
-                  {[
-                    '입실 오후 3시 / 퇴실 오전 11시',
-                    '객실 내 육류/생선류 등 냄새가 심한 조리 금지',
-                    '전 객실 반려동물 동반 불가 (알러지 예방)',
-                    '미성년자는 보호자 동반 없이 입실 불가'
-                  ].map((text, i) => (
-                    <li key={i} className="flex items-start gap-3 text-[12.5px] text-gray-500 leading-relaxed font-medium">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mt-1.5 shrink-0" />
-                      {text}
-                    </li>
-                  ))}
-                </ul>
+              <div>
+                <h3 className="text-[16px] font-bold text-gray-900 mb-3 tracking-tight">이용 안내 및 유의사항</h3>
+                <p className="text-[14.5px] text-gray-600 leading-relaxed font-medium">
+                  체크인은 오후 3시부터이며, 체크아웃은 오전 11시까지입니다. 
+                  쾌적한 환경 유지를 위해 객실 내 육류 및 생선류 등 냄새가 심한 조리는 금지하고 있습니다. 
+                  또한 전 객실 반려동물 동반이 불가하며, 미성년자의 경우 법정대리인의 동행 없이 투숙이 불가능한 점 양해 부탁드립니다.
+                </p>
               </div>
             </div>
           </div>
