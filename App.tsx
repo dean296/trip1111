@@ -26,7 +26,10 @@ import {
   Check,
   CreditCard,
   Building2,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Layers,
+  Home,
+  PawPrint
 } from 'lucide-react';
 
 // --- Reusable Components ---
@@ -69,7 +72,6 @@ const RatingDisplay = ({ platform, rating }: { platform: string, rating: number 
 const PaymentIcon = ({ id, name, icon }: { id: string; name: string; icon: string }) => {
   const [error, setError] = useState(false);
 
-  // 브랜드별 가상 아이콘 (Fallback)
   const fallbacks: Record<string, React.ReactNode> = {
     card: <div className="w-5 h-5 bg-gray-100 rounded-md flex items-center justify-center text-gray-500"><CreditCard size={12} /></div>,
     vbank: <div className="w-5 h-5 bg-gray-100 rounded-md flex items-center justify-center text-gray-500"><Building2 size={12} /></div>,
@@ -308,7 +310,9 @@ const UnifiedBookingModal = ({
 
   const handleDateClick = (day: number) => {
     const clickedDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
-    if (clickedDate < today) return; // 과거 날짜 선택 방지
+    clickedDate.setHours(0, 0, 0, 0);
+    
+    if (clickedDate < today) return;
 
     if (!localStart || (localStart && localEnd)) {
       setLocalStart(clickedDate);
@@ -331,21 +335,26 @@ const UnifiedBookingModal = ({
   const isSelected = (day: number) => {
     if (!day) return false;
     const d = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
-    if (localStart && d.getTime() === localStart.getTime()) return true;
-    if (localEnd && d.getTime() === localEnd.getTime()) return true;
+    d.setHours(0, 0, 0, 0);
+    const time = d.getTime();
+    if (localStart && time === localStart.getTime()) return true;
+    if (localEnd && time === localEnd.getTime()) return true;
     return false;
   };
 
   const isInRange = (day: number) => {
     if (!day || !localStart || !localEnd) return false;
     const d = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
-    return d > localStart && d < localEnd;
+    d.setHours(0, 0, 0, 0);
+    const time = d.getTime();
+    return time > localStart.getTime() && time < localEnd.getTime();
   };
 
   const isPast = (day: number) => {
     if (!day) return false;
     const d = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
-    return d < today;
+    d.setHours(0, 0, 0, 0);
+    return d.getTime() < today.getTime();
   };
 
   return (
@@ -357,7 +366,6 @@ const UnifiedBookingModal = ({
         </div>
         
         <div className="flex-1 overflow-y-auto hide-scrollbar space-y-8 pb-10">
-          {/* 날짜 요약 영역 */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
               <p className="text-[10px] text-gray-400 mb-0.5 font-bold uppercase tracking-wider">체크인</p>
@@ -369,7 +377,6 @@ const UnifiedBookingModal = ({
             </div>
           </div>
 
-          {/* 달력 영역 */}
           <div className="border-b border-gray-100 pb-8">
             <div className="flex items-center justify-between mb-4 px-2">
               <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="p-1 text-gray-400 hover:text-gray-900"><ChevronLeft size={20} /></button>
@@ -380,25 +387,30 @@ const UnifiedBookingModal = ({
               {['일','월','화','수','목','금','토'].map(d => <div key={d} className="py-2">{d}</div>)}
             </div>
             <div className="grid grid-cols-7 gap-y-1">
-              {days.map((day, i) => (
-                <div 
-                  key={i} 
-                  onClick={() => day && handleDateClick(day)}
-                  className={`
-                    relative h-11 flex items-center justify-center text-sm font-medium transition-all
-                    ${!day ? 'pointer-events-none' : 'cursor-pointer'}
-                    ${isPast(day!) ? 'text-gray-200 pointer-events-none' : 'text-gray-700 hover:bg-gray-50 rounded-lg'}
-                    ${isSelected(day!) ? 'bg-blue-600 text-white font-bold rounded-lg !hover:bg-blue-600' : ''}
-                    ${isInRange(day!) ? 'bg-blue-50 text-blue-600 rounded-none' : ''}
-                  `}
-                >
-                  {day}
-                </div>
-              ))}
+              {days.map((day, i) => {
+                const selected = day ? isSelected(day) : false;
+                const inRange = day ? isInRange(day) : false;
+                const past = day ? isPast(day) : false;
+
+                return (
+                  <div 
+                    key={i} 
+                    onClick={() => day && handleDateClick(day)}
+                    className={`
+                      relative h-11 flex items-center justify-center text-sm font-medium transition-all
+                      ${!day ? 'pointer-events-none' : 'cursor-pointer'}
+                      ${past ? 'text-gray-200 pointer-events-none' : (selected ? 'text-white' : 'text-gray-700 hover:bg-gray-50')}
+                      ${selected ? 'bg-blue-600 font-bold rounded-lg shadow-sm z-10' : ''}
+                      ${inRange ? 'bg-blue-50 text-blue-600 rounded-none' : 'rounded-lg'}
+                    `}
+                  >
+                    {day}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* 인원 선택 영역 */}
           <div className="space-y-6">
             <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
               <Users2 size={16} className="text-blue-600" /> 인원 설정
@@ -486,10 +498,8 @@ const ImageGalleryModal = ({ isOpen, onClose, images, activeIndex, setActiveInde
 
     if (Math.abs(diff) > 50) {
       if (diff > 0) {
-        // Swipe left -> Next
         setActiveIndex(activeIndex === images.length - 1 ? 0 : activeIndex + 1);
       } else {
-        // Swipe right -> Prev
         setActiveIndex(activeIndex === 0 ? images.length - 1 : activeIndex - 1);
       }
     }
@@ -545,13 +555,8 @@ const AgreementTermModal = ({ isOpen, title, onClose, onAgree }: { isOpen: boole
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
         </div>
         <div className="flex-1 overflow-y-auto text-sm text-gray-600 leading-relaxed space-y-4 pr-1 hide-scrollbar">
-          <p>이곳에 약관 본문 내용이 들어갑니다. 현재는 더미 텍스트로 채워져 있으며, 나중에 실제 내용을 작성하실 수 있습니다.</p>
-          <p>태안 엘플레이트 풀빌라는 고객님의 안전과 쾌적한 휴식을 위해 최선을 다하고 있습니다. 이용 중 발생할 수 있는 사고 예방을 위해 아래의 이용 수칙을 반드시 준수해 주시기 바랍니다.</p>
-          <p>1. 입실 및 퇴실 시간 준수</p>
-          <p>2. 객실 내 정원 초과 인원 입실 금지</p>
-          <p>3. 시설물 파손 시 변상 조치</p>
-          <p>4. 타인에게 피해를 주는 소음 행위 자제</p>
-          <p>등의 상세 약관 내용이 계속됩니다...</p>
+          <p>이곳에 약관 본문 내용이 들어갑니다.</p>
+          <p>태안 엘플레이트 풀빌라는 고객님의 안전과 쾌적한 휴식을 위해 최선을 다하고 있습니다.</p>
         </div>
         <div className="pt-6 mt-4 border-t border-gray-100">
           <button 
@@ -559,6 +564,41 @@ const AgreementTermModal = ({ isOpen, title, onClose, onAgree }: { isOpen: boole
             className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all text-lg"
           >
             동의합니다
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Facilities Modal ---
+const FacilitiesModal = ({ isOpen, onClose, facilities }: { isOpen: boolean, onClose: () => void, facilities: any[] }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[550] flex items-end justify-center bg-black/50 animate-in fade-in duration-300" onClick={onClose}>
+      <div className="bg-white w-full max-w-[480px] h-[70vh] rounded-t-3xl flex flex-col p-6 shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6 shrink-0 border-b border-gray-100 pb-4">
+          <h3 className="text-xl font-bold">숙소 테마 및 시설</h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto pr-1 hide-scrollbar">
+          <div className="grid grid-cols-2 gap-y-6 py-4">
+            {facilities.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-4">
+                <div className="text-gray-400">
+                  <item.icon size={24} strokeWidth={1.5} />
+                </div>
+                <span className="text-[15px] font-bold text-gray-700">{item.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="pt-6 mt-4 border-t border-gray-100">
+          <button 
+            onClick={onClose}
+            className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all text-lg"
+          >
+            닫기
           </button>
         </div>
       </div>
@@ -581,7 +621,6 @@ const SharedFooter = () => (
         <span>사업자번호: 367-88-00819</span>
       </div>
     </div>
-
     <div className="mt-6 pt-4 border-t border-gray-300/40">
       <p className="text-[12px] text-[#999] leading-[1.6]">
         트립일레븐은 통신판매 중개자로서 예약시스템만 제공하며, 예약 관련 서비스는 숙박업체의 책임하에 운영되고 있습니다.
@@ -625,7 +664,6 @@ const ReservationView = ({
   const [isVerified, setIsVerified] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   
-  // Agreement states
   const [agreements, setAgreements] = useState({
     rules: false,
     refund: false,
@@ -634,7 +672,6 @@ const ReservationView = ({
   });
   const [activeAgreementModal, setActiveAgreementModal] = useState<string | null>(null);
 
-  // Refs for auto-scroll and focus
   const nameRef = useRef<HTMLDivElement>(null);
   const phoneRef = useRef<HTMLDivElement>(null);
   const verifyRef = useRef<HTMLDivElement>(null);
@@ -683,7 +720,6 @@ const ReservationView = ({
   const handleRequestVerification = () => {
     if (isPhoneValid) {
       setShowVerification(true);
-      // 인증번호 입력창이 나타난 후 포커스 이동 (React 렌더링 사이클 고려)
       setTimeout(() => {
         verifyInputRef.current?.focus();
       }, 50);
@@ -700,7 +736,6 @@ const ReservationView = ({
   ];
 
   const handlePayment = () => {
-    // Validation in order
     if (!userName.trim()) {
       nameRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
@@ -721,7 +756,6 @@ const ReservationView = ({
       agreementRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    
     alert('결제 단계로 진행합니다.');
   };
 
@@ -754,15 +788,11 @@ const ReservationView = ({
           setActiveAgreementModal(null);
         }}
       />
-
-      {/* Header - Fixed & Fully Opaque */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-100 flex items-center px-4 py-4 w-full">
         <button onClick={onClose} className="p-1"><ChevronLeft size={24} /></button>
         <h2 className="flex-1 text-center font-bold text-lg mr-6">예약</h2>
       </header>
-
       <div className="flex-1 bg-gray-50 pb-32">
-        {/* Lowest Price Card */}
         <div className="p-4 bg-white">
           <div className="bg-[#121212] p-5 rounded-2xl border border-gray-800 mb-4 shadow-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 -mr-4 -mt-4 p-10 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all duration-700"></div>
@@ -799,8 +829,6 @@ const ReservationView = ({
             </div>
           </div>
         </div>
-
-        {/* Room Info Section */}
         <section className="bg-white p-5 mb-2">
           <div className="inline-block bg-blue-50 text-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded mb-2">타사이트 대비 최저가보장</div>
           <h3 className="text-xl font-bold text-gray-900 mb-6">태안 엘플레이트풀빌라<br />{room.name}</h3>
@@ -827,8 +855,6 @@ const ReservationView = ({
             </div>
           </div>
         </section>
-
-        {/* User Info Section */}
         <section className="bg-white p-5 mb-2">
           <h4 className="text-[15px] font-bold text-gray-900 mb-6">이용정보</h4>
           <div className="space-y-6">
@@ -897,8 +923,6 @@ const ReservationView = ({
             </div>
           </div>
         </section>
-
-        {/* Discount Section */}
         <section className="bg-white p-5 mb-2">
           <h4 className="text-[15px] font-bold text-gray-900 mb-4">할인</h4>
           <div className="w-full flex justify-between items-center p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm relative overflow-hidden">
@@ -919,8 +943,6 @@ const ReservationView = ({
             </div>
           </div>
         </section>
-
-        {/* Payment Amount Section */}
         <section className="bg-white p-5 mb-2">
           <h4 className="text-[15px] font-bold text-gray-900 mb-6">결제 금액</h4>
           <div className="space-y-3.5 mb-5">
@@ -941,8 +963,6 @@ const ReservationView = ({
             <span className="text-xl font-black text-blue-600">{finalPrice.toLocaleString()}원</span>
           </div>
         </section>
-
-        {/* Payment Method Section - removed '혜택' label */}
         <section className="bg-white p-5 mb-2" ref={paymentRef}>
           <h4 className="text-[15px] font-bold text-gray-900 mb-6">결제 수단 <span className="text-red-500">*</span></h4>
           <div className="border border-gray-100 rounded-xl divide-y divide-gray-50">
@@ -961,8 +981,6 @@ const ReservationView = ({
             ))}
           </div>
         </section>
-
-        {/* Info Notices Section */}
         <section className="bg-orange-50/40 p-5 mb-2 border-y border-orange-100/50 space-y-4">
           <div className="flex gap-3">
             <Info size={18} className="text-orange-600 shrink-0 mt-0.5" />
@@ -986,8 +1004,6 @@ const ReservationView = ({
             </div>
           </div>
         </section>
-
-        {/* Agreement Section */}
         <section className="bg-white p-5 space-y-6" ref={agreementRef}>
           <div className="flex items-center gap-3 py-4 border-b border-gray-100 cursor-pointer" onClick={handleAgreedAll}>
             <div className={`p-1 rounded-md transition-colors ${isAgreedAll ? 'bg-blue-600' : 'bg-gray-100'}`}>
@@ -995,7 +1011,6 @@ const ReservationView = ({
             </div>
             <span className="text-lg font-black text-gray-900">전체 동의</span>
           </div>
-
           <div className="space-y-6 px-1">
             {[
               { id: 'rules', label: '[필수] 이용규칙' },
@@ -1015,7 +1030,6 @@ const ReservationView = ({
                 </button>
               </div>
             ))}
-            {/* Age Agreement - No View Button */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 cursor-pointer" onClick={() => toggleAgreement('age')}>
                 <Check size={18} className={agreements.age ? 'text-blue-600' : 'text-gray-200'} />
@@ -1024,12 +1038,8 @@ const ReservationView = ({
             </div>
           </div>
         </section>
-
-        {/* Common Footer in Reservation View */}
         <SharedFooter />
       </div>
-
-      {/* Bottom Fixed Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 max-w-[480px] mx-auto z-[610]">
         <button 
           onClick={handlePayment}
@@ -1047,8 +1057,16 @@ const ReservationView = ({
 // --- Main App ---
 
 const App: React.FC = () => {
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date(Date.now() + 86400000));
+  const [startDate, setStartDate] = useState<Date>(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const [endDate, setEndDate] = useState<Date>(() => {
+    const d = new Date(Date.now() + 86400000);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
@@ -1061,11 +1079,11 @@ const App: React.FC = () => {
   const [activeShortId, setActiveShortId] = useState<string | null>(null);
   const [isReviewFrameModalOpen, setIsReviewFrameModalOpen] = useState(false);
   const [isReservationViewOpen, setIsReservationViewOpen] = useState(false);
+  const [isFacilitiesModalOpen, setIsFacilitiesModalOpen] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState<number>(24 * 60 * 60);
   const [showAllAttractions, setShowAllAttractions] = useState(false);
 
-  // Handle body scroll locking when any modal or full-screen view is open
-  const isAnyModalOpen = isBookingModalOpen || isReviewsModalOpen || isRoomInfoModalOpen || isGalleryOpen || activeShortId !== null || isReviewFrameModalOpen || isReservationViewOpen;
+  const isAnyModalOpen = isBookingModalOpen || isReviewsModalOpen || isRoomInfoModalOpen || isGalleryOpen || activeShortId !== null || isReviewFrameModalOpen || isReservationViewOpen || isFacilitiesModalOpen;
 
   useEffect(() => {
     if (isAnyModalOpen) {
@@ -1127,19 +1145,26 @@ const App: React.FC = () => {
     ],
     minGuests: 2,
     maxGuests: 4,
-    description: "태안 엘플레이트풀빌라의 시그니처 객실인 D룸은 넓은 개별 온수풀과 프라이빗한 바베큐 공간을 제공합니다.\n\n최고급 킹 사이즈 매트리스와 구스 침구로 편안한 휴식을 보장하며, 통창을 통해 들어오는 채광이 아름다운 객실입니다."
+    description: "태안 엘플레이트풀빌라의 시그니처 객실인 D룸은 넓은 개별 온수풀과 프라이빗한 바베큐 공간을 제공합니다."
   };
+
+  const allFacilities = [
+    { icon: Layers, name: "복층" },
+    { icon: Home, name: "독채" },
+    { icon: PawPrint, name: "애견" },
+    { icon: Utensils, name: "개별바베큐" },
+    { icon: Waves, name: "온수풀" },
+    { icon: Camera, name: "오션뷰" },
+    { icon: Zap, name: "무료와이파이" },
+    { icon: Clock, name: "24시간보안" },
+    { icon: Users2, name: "공용시설" },
+    { icon: Gift, name: "어메니티제공" }
+  ];
 
   const reviews = [
     { id: 1, platform: 'Naver', userId: 'kimsky12', rating: 0, date: '2025.05.21', text: '가족과 함께 방문했습니다. 결론부터 말씀드리자면, 시설이 정말 훌륭했습니다. 특히 수영장이 너무 깨끗해서 아이들이 정말 좋아했어요.' },
     { id: 2, platform: 'Yanolja', userId: 'sunnyday99', rating: 5.0, date: '2025.05.15', text: '사장님이 너무 친절하시고 숙소가 정말 깨끗해요! 온수풀도 밤늦게까지 따뜻하게 유지되어서 좋았습니다.' },
     { id: 3, platform: 'Yeogiyeottae', userId: 'traveler_jeon', rating: 9.8, date: '2025.05.02', text: '태안 여행 중 최고의 선택이었습니다. 개별 바베큐장도 잘 되어 있고 프라이빗하게 쉴 수 있어서 좋았습니다.' }
-  ];
-
-  const shorts = [
-    { id: 1, videoId: "IpJytv79TzI", thumb: "https://img.youtube.com/vi/IpJytv79TzI/hqdefault.jpg" },
-    { id: 2, videoId: "IpJytv79TzI", thumb: "https://img.youtube.com/vi/IpJytv79TzI/hqdefault.jpg" },
-    { id: 3, videoId: "IpJytv79TzI", thumb: "https://img.youtube.com/vi/IpJytv79TzI/hqdefault.jpg" }
   ];
 
   const attractions = [
@@ -1191,47 +1216,12 @@ const App: React.FC = () => {
       <div className="pt-[52px]">
         <ShortsPlayerModal videoId={activeShortId} onClose={() => setActiveShortId(null)} />
         <ReviewFrameModal isOpen={isReviewFrameModalOpen} onClose={() => setIsReviewFrameModalOpen(false)} />
-        <ReviewsModal 
-          isOpen={isReviewsModalOpen} 
-          onClose={() => setIsReviewsModalOpen(false)} 
-          reviews={reviews} 
-          onReviewClick={handleReviewClick}
-        />
-        <RoomInfoModal 
-          isOpen={isRoomInfoModalOpen} 
-          onClose={() => setIsRoomInfoModalOpen(false)} 
-          room={roomD} 
-          onOpenGallery={openGallery} 
-          onReserve={() => {
-            setIsRoomInfoModalOpen(false);
-            setIsReservationViewOpen(true);
-          }}
-        />
+        <ReviewsModal isOpen={isReviewsModalOpen} onClose={() => setIsReviewsModalOpen(false)} reviews={reviews} onReviewClick={handleReviewClick} />
+        <RoomInfoModal isOpen={isRoomInfoModalOpen} onClose={() => setIsRoomInfoModalOpen(false)} room={roomD} onOpenGallery={openGallery} onReserve={() => { setIsRoomInfoModalOpen(false); setIsReservationViewOpen(true); }} />
+        <FacilitiesModal isOpen={isFacilitiesModalOpen} onClose={() => setIsFacilitiesModalOpen(false)} facilities={allFacilities} />
         
-        <UnifiedBookingModal 
-          isOpen={isBookingModalOpen}
-          onClose={() => setIsBookingModalOpen(false)}
-          startDate={startDate}
-          endDate={endDate}
-          adults={adults}
-          children={children}
-          infants={infants}
-          onDateSelect={(s, e) => { setStartDate(s); setEndDate(e); }}
-          onGuestSelect={(a, c, i) => { setAdults(a); setChildren(c); setInfants(i); }}
-        />
-
-        <ReservationView 
-          isOpen={isReservationViewOpen} 
-          onClose={() => setIsReservationViewOpen(false)} 
-          room={roomD}
-          startDate={startDate}
-          endDate={endDate}
-          adults={adults}
-          children={children}
-          infants={infants}
-          secondsRemaining={secondsRemaining}
-        />
-
+        <UnifiedBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} startDate={startDate} endDate={endDate} adults={adults} children={children} infants={infants} onDateSelect={(s, e) => { setStartDate(s); setEndDate(e); }} onGuestSelect={(a, c, i) => { setAdults(a); setChildren(c); setInfants(i); }} />
+        <ReservationView isOpen={isReservationViewOpen} onClose={() => setIsReservationViewOpen(false)} room={roomD} startDate={startDate} endDate={endDate} adults={adults} children={children} infants={infants} secondsRemaining={secondsRemaining} />
         <ImageGalleryModal isOpen={isGalleryOpen} onClose={() => setIsGalleryOpen(false)} images={currentGalleryImages} activeIndex={galleryActiveIndex} setActiveIndex={setGalleryActiveIndex} />
 
         <section className="w-full">
@@ -1249,20 +1239,14 @@ const App: React.FC = () => {
             <MapPin size={16} className="mr-1 mt-0.5 shrink-0 text-blue-500" />
             <p>충청남도 태안군 남면 몽대로 359-3</p>
           </div>
-
-          {/* --- 최저가 보장 카드 디자인 --- */}
           <div className="bg-[#121212] p-5 rounded-2xl border border-gray-800 mb-4 shadow-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 -mr-4 -mt-4 p-10 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all duration-700"></div>
-            
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-1">
                 <div className="flex items-center gap-2">
                   <div className="w-1 h-4 bg-[#FF4F4F] rounded-full shadow-[0_0_8px_rgba(255,79,79,0.8)]"></div>
-                  <h2 className="text-[12px] font-black text-[#FF4F4F] uppercase tracking-tighter leading-none">
-                    LOWEST PRICE <br /> GUARANTEE
-                  </h2>
+                  <h2 className="text-[12px] font-black text-[#FF4F4F] uppercase tracking-tighter leading-none">LOWEST PRICE <br /> GUARANTEE</h2>
                 </div>
-                
                 <div className="relative">
                   <div className="bg-white text-black text-[10px] font-black px-2.5 py-1.5 rounded-xl shadow-lg animate-bounce whitespace-nowrap">
                     고객센터 이용고객 대상
@@ -1270,77 +1254,62 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-
               <div className="pt-1 relative">
                 <div className="pr-24">
                   <h3 className="text-white text-2xl font-black tracking-tight leading-tight">24시간 한정</h3>
                   <h3 className="text-[#FFEA00] text-2xl font-black tracking-tight leading-tight [text-shadow:0_0_15px_rgba(255,234,0,0.6)]">최저가 보장</h3>
                 </div>
-                
                 <div className="absolute top-1 right-0 flex items-center gap-1.5 bg-red-500/10 px-2 py-1.5 rounded-lg border border-red-500/30">
                   <Clock size={12} className="text-[#FFEA00]" />
                   <span className="text-[13px] font-black font-mono text-[#FFEA00] tracking-tighter">{formatTime(secondsRemaining)}</span>
                 </div>
               </div>
             </div>
-
             <div className="text-[13px] text-gray-400 mt-4 leading-relaxed font-medium relative z-10 space-y-0.5">
               <p>🎁 상담 고객 한정 특별가를 드립니다.</p>
               <p>📣 타 예약사이트 대비 <span className="text-[#FF4F4F] font-black">최저가 보장</span></p>
               <p>🏸 최저가를 발견하시면 차액을 보상해드립니다.</p>
             </div>
           </div>
-
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mt-4">
-            <h2 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
-              <Zap size={14} className="text-blue-600" /> 숙소 소개
-            </h2>
-            <p className="text-sm text-gray-600 leading-relaxed font-medium">
-              태안의 푸른 바다를 품은 엘플레이트 풀빌라는 전 객실 환상적인 오션뷰와 개별 온수풀을 갖춘 최고급 휴양 공간입니다. 
-              프라이빗한 휴식과 낭만적인 바베큐 파티를 통해 잊지 못할 추억을 만들어보세요.
-            </p>
+            <h2 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5"><Zap size={14} className="text-blue-600" /> 숙소 소개</h2>
+            <p className="text-sm text-gray-600 leading-relaxed font-medium">태안의 푸른 바다를 품은 엘플레이트 풀빌라는 전 객실 환상적인 오션뷰와 개별 온수풀을 갖춘 최고급 휴양 공간입니다.</p>
           </div>
         </section>
 
-        <section className="px-5 my-6">
-          <div className="flex items-center justify-between mb-4">
-             <h2 className="text-xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-               <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
-               실제 방문객의 생생 기록
-             </h2>
-          </div>
-          <div className="flex gap-3 overflow-x-auto hide-scrollbar -mx-5 px-5 pb-2">
-            {shorts.map((item, idx) => (
-              <div 
-                key={idx} 
-                onClick={() => setActiveShortId(item.videoId)}
-                className="relative w-36 aspect-[9/16] rounded-2xl overflow-hidden shadow-lg bg-gray-900 shrink-0 ring-2 ring-gray-50 active:scale-95 transition-all group cursor-pointer"
-              >
-                <img src={item.thumb} alt="Shorts thumb" className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-red-600 p-2.5 rounded-full shadow-lg group-hover:scale-110 transition-transform">
-                    <Play size={20} className="text-white fill-current" />
-                  </div>
+        {/* Accommodation Theme and Facilities Section */}
+        <section className="px-5 py-8 border-b border-gray-50">
+          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
+            숙소 테마 및 시설
+          </h2>
+          <div className="grid grid-cols-2 gap-y-6 mb-8">
+            {allFacilities.slice(0, 4).map((item, idx) => (
+              <div key={idx} className="flex items-center gap-4">
+                <div className="text-gray-400">
+                  <item.icon size={28} strokeWidth={1.5} />
                 </div>
+                <span className="text-[15px] font-bold text-gray-700">{item.name}</span>
               </div>
             ))}
-            <div className="w-36 aspect-[9/16] rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center shrink-0">
-               <Plus size={24} className="text-gray-300 mb-1" />
-               <span className="text-[10px] text-gray-400 font-bold">리뷰 올리기</span>
-            </div>
           </div>
+          <button 
+            onClick={() => setIsFacilitiesModalOpen(true)}
+            className="w-full border border-gray-300 py-3.5 rounded-xl text-[14px] font-bold text-gray-700 active:bg-gray-50 transition-colors shadow-sm"
+          >
+            편의시설 {allFacilities.length}개 모두보기
+          </button>
         </section>
 
-        <section className="px-5 mb-8">
+        {/* Visitor Reviews Section */}
+        <section className="px-5 mb-8 mt-6">
           <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center">
-              <Star size={20} className="text-yellow-400 fill-current mr-1.5" />
-              <span className="text-lg font-bold text-gray-900">리뷰 128개</span>
-            </div>
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
+              방문객 리뷰(128)
+            </h2>
             <button onClick={() => setIsReviewsModalOpen(true)} className="text-sm font-semibold text-gray-800 underline active:text-blue-600">전체보기</button>
           </div>
-          
           <div className="flex flex-col space-y-3 pb-2">
             {reviews.slice(0, 3).map((review) => (
               <div key={review.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50 cursor-pointer transition-colors" onClick={handleReviewClick}>
@@ -1358,28 +1327,21 @@ const App: React.FC = () => {
 
         <section className="px-5 mb-4">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><span className="w-1 h-5 bg-blue-600 rounded-full"></span>객실 선택</h2>
-          
-          {/* 일정 및 인원 선택 통합 버튼 */}
           <div className="mb-6">
             <button 
               onClick={() => setIsBookingModalOpen(true)} 
               className="w-full flex items-center justify-between border border-gray-200 bg-white rounded-xl py-3.5 px-4 text-sm font-bold text-gray-800 shadow-sm active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-3">
-                <div className="flex items-center text-blue-600 bg-blue-50 p-2 rounded-lg">
-                  <Calendar size={18} />
-                </div>
+                <div className="flex items-center text-blue-600 bg-blue-50 p-2 rounded-lg"><Calendar size={18} /></div>
                 <div className="flex flex-col items-start">
                   <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">일정 및 인원</span>
-                  <span className="text-[13px]">
-                    {formatDate(startDate)} ~ {formatDate(endDate)} ({diffDays}박) / {adults + children + infants}명
-                  </span>
+                  <span className="text-[13px]">{formatDate(startDate)} ~ {formatDate(endDate)} ({diffDays}박) / {adults + children + infants}명</span>
                 </div>
               </div>
               <ChevronRight size={18} className="text-gray-300" />
             </button>
           </div>
-
           <div className="border border-gray-100 rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
             <MosaicGallery images={roomD.images} totalCount={roomD.images.length} id="roomD" onOpenGallery={(idx) => openGallery(roomD.images, idx)} />
             <div className="p-5 pt-4">
@@ -1418,38 +1380,28 @@ const App: React.FC = () => {
 
         <section className="px-5 mb-10">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
-              주변 관광지({attractions.length})
-            </h2>
-            <button 
-              onClick={() => setShowAllAttractions(!showAllAttractions)} 
-              className="text-sm font-semibold text-gray-800 underline active:text-blue-600"
-            >
-              {showAllAttractions ? '접기' : '전체보기'}
-            </button>
+            <h2 className="text-xl font-bold flex items-center gap-2"><span className="w-1 h-5 bg-blue-600 rounded-full"></span>주변 관광지({attractions.length})</h2>
+            <button onClick={() => setShowAllAttractions(!showAllAttractions)} className="text-sm font-semibold text-gray-800 underline active:text-blue-600">{showAllAttractions ? '접기' : '전체보기'}</button>
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5 transition-all duration-300">
             {(showAllAttractions ? attractions : attractions.slice(0, 3)).map((item, idx) => (
               <div key={idx} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0 sm:border-b sm:border-gray-50/50">
                 <div className="flex items-center gap-2.5 truncate">
-                  <div className="p-1.5 bg-blue-50 rounded-md text-blue-500 shrink-0">
-                    <MapPin size={12} className="fill-current" />
-                  </div>
+                  <div className="p-1.5 bg-blue-50 rounded-md text-blue-500 shrink-0"><MapPin size={12} className="fill-current" /></div>
                   <span className="text-[13px] font-bold text-gray-800 truncate">{item.name}</span>
                 </div>
-                <span className="text-[11px] font-black text-blue-600 bg-blue-50/50 px-2 py-0.5 rounded shrink-0 ml-2">
-                  {item.distance}
-                </span>
+                <span className="text-[11px] font-black text-blue-600 bg-blue-50/50 px-2 py-0.5 rounded shrink-0 ml-2">{item.distance}</span>
               </div>
             ))}
           </div>
         </section>
 
+        {/* Detailed Accommodation Information Section (Restored) */}
         <section className="px-6 py-12 bg-white border-t border-gray-100">
           <div className="max-w-[420px] mx-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight flex items-center gap-3">
-              <Info size={22} className="text-blue-600" /> 상세 숙소 정보
+            <h2 className="text-xl font-bold text-gray-900 mb-8 tracking-tight flex items-center gap-2">
+              <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
+              상세 숙소 정보
             </h2>
             
             <div className="space-y-10">
@@ -1485,8 +1437,6 @@ const App: React.FC = () => {
         </section>
 
         <SharedFooter />
-
-        {/* --- 우측 하단 상담하기 플로팅 버튼 --- */}
         {!isRoomInfoModalOpen && !isReservationViewOpen && (
           <div className="fixed bottom-6 right-6 z-[120] animate-in slide-in-from-bottom duration-500">
             <button className="bg-blue-600 text-white flex items-center gap-2 px-5 py-3.5 rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-all group">
