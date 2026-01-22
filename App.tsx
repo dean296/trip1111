@@ -45,6 +45,27 @@ const PlatformIcon = ({ type }: { type: 'Naver' | 'Yanolja' | 'Yeogiyeottae' }) 
   );
 };
 
+const RatingDisplay = ({ platform, rating }: { platform: string, rating: number }) => {
+  if (platform === 'Naver') {
+    return (
+      <span className="text-[11px] font-bold text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
+        방문자 인증
+      </span>
+    );
+  }
+  
+  const maxScore = platform === 'Yeogiyeottae' ? 10 : 5;
+  
+  return (
+    <div className="flex items-center gap-1">
+      <Star size={12} className="text-yellow-400 fill-current" />
+      <span className="text-[11px] font-bold text-gray-700">
+        {rating} <span className="text-gray-300 font-medium">/ {maxScore}</span>
+      </span>
+    </div>
+  );
+};
+
 const PaymentIcon = ({ id, name, icon }: { id: string; name: string; icon: string }) => {
   const [error, setError] = useState(false);
 
@@ -193,11 +214,7 @@ const ReviewsModal = ({ isOpen, onClose, reviews, onReviewClick }: { isOpen: boo
               <div className="flex items-center gap-2 mb-2">
                 <PlatformIcon type={review.platform} />
                 <span className="text-[11px] font-bold text-gray-700">{maskId(review.userId)}</span>
-                <div className="flex items-center ml-1">
-                  {[...Array(review.rating)].map((_, i) => (
-                    <Star key={i} size={14} className="text-yellow-400 fill-current" />
-                  ))}
-                </div>
+                <RatingDisplay platform={review.platform} rating={review.rating} />
                 <span className="text-gray-400 text-xs ml-auto">{review.date}</span>
               </div>
               <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
@@ -1114,9 +1131,9 @@ const App: React.FC = () => {
   };
 
   const reviews = [
-    { id: 1, platform: 'Naver', userId: 'kimsky12', rating: 5, date: '2025.05.21', text: '가족과 함께 방문했습니다. 결론부터 말씀드리자면, 시설이 정말 훌륭했습니다. 특히 수영장이 너무 깨끗해서 아이들이 정말 좋아했어요.' },
-    { id: 2, platform: 'Yanolja', userId: 'sunnyday99', rating: 5, date: '2025.05.15', text: '사장님이 너무 친절하시고 숙소가 정말 깨끗해요! 온수풀도 밤늦게까지 따뜻하게 유지되어서 좋았습니다.' },
-    { id: 3, platform: 'Yeogiyeottae', userId: 'traveler_jeon', rating: 5, date: '2025.05.02', text: '태안 여행 중 최고의 선택이었습니다. 개별 바베큐장도 잘 되어 있고 프라이빗하게 쉴 수 있어서 좋았습니다.' }
+    { id: 1, platform: 'Naver', userId: 'kimsky12', rating: 0, date: '2025.05.21', text: '가족과 함께 방문했습니다. 결론부터 말씀드리자면, 시설이 정말 훌륭했습니다. 특히 수영장이 너무 깨끗해서 아이들이 정말 좋아했어요.' },
+    { id: 2, platform: 'Yanolja', userId: 'sunnyday99', rating: 5.0, date: '2025.05.15', text: '사장님이 너무 친절하시고 숙소가 정말 깨끗해요! 온수풀도 밤늦게까지 따뜻하게 유지되어서 좋았습니다.' },
+    { id: 3, platform: 'Yeogiyeottae', userId: 'traveler_jeon', rating: 9.8, date: '2025.05.02', text: '태안 여행 중 최고의 선택이었습니다. 개별 바베큐장도 잘 되어 있고 프라이빗하게 쉴 수 있어서 좋았습니다.' }
   ];
 
   const shorts = [
@@ -1318,9 +1335,8 @@ const App: React.FC = () => {
         <section className="px-5 mb-8">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
-              <Star size={20} className="text-yellow-400 fill-current mr-1" />
-              <span className="text-lg font-bold text-gray-900">5.0</span>
-              <span className="text-gray-400 text-sm ml-1 font-medium">(72)</span>
+              <Star size={20} className="text-yellow-400 fill-current mr-1.5" />
+              <span className="text-lg font-bold text-gray-900">리뷰 128개</span>
             </div>
             <button onClick={() => setIsReviewsModalOpen(true)} className="text-sm font-semibold text-gray-800 underline active:text-blue-600">전체보기</button>
           </div>
@@ -1331,9 +1347,7 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <PlatformIcon type={review.platform as any} />
                   <span className="text-[11px] font-bold text-gray-700">{maskId(review.userId)}</span>
-                  <div className="flex items-center ml-1">
-                    {[...Array(review.rating)].map((_, i) => <Star key={i} size={14} className="text-yellow-400 fill-current" />)}
-                  </div>
+                  <RatingDisplay platform={review.platform} rating={review.rating} />
                   <span className="text-gray-400 text-[10px] ml-auto font-medium">{review.date}</span>
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">{review.text}</p>
