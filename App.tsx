@@ -241,34 +241,48 @@ const ReviewsModal = ({ isOpen, onClose, reviews, onReviewClick }: { isOpen: boo
 const RoomInfoModal = ({ isOpen, onClose, room, onOpenGallery, onReserve }: { isOpen: boolean, onClose: () => void, room: any, onOpenGallery: (imgs: string[], idx: number) => void, onReserve: () => void }) => {
   if (!isOpen || !room) return null;
   return (
-    <div className="fixed inset-0 z-[110] flex justify-center bg-white animate-in slide-in-from-right duration-300">
-      <div className="w-full max-w-[480px] h-full flex flex-col bg-white relative">
-        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 pointer-events-none">
-          <button onClick={onClose} className="p-2 bg-black/30 text-white rounded-full backdrop-blur-md pointer-events-auto shadow-sm active:scale-90 transition-transform"><ChevronLeft size={24} /></button>
-          <button onClick={onClose} className="p-2 bg-black/30 text-white rounded-full backdrop-blur-md pointer-events-auto shadow-sm active:scale-90 transition-transform"><X size={24} /></button>
-        </div>
-        <div className="flex-1 overflow-y-auto hide-scrollbar pb-24">
-          <section className="w-full">
-            <MosaicGallery images={room.images} totalCount={room.images.length} id="room-detail-mosaic" onOpenGallery={(idx) => onOpenGallery(room.images, idx)} />
-          </section>
-          <div className="p-6 space-y-8">
-            <div>
-              <h3 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">객실 {room.name}</h3>
-              <div className="flex flex-wrap items-center text-gray-500 text-sm gap-y-2 gap-x-4 bg-gray-50 p-5 rounded-2xl">
-                <div className="flex items-center"><Users size={18} className="mr-2 text-blue-600" /><span className="font-semibold">기준 {room.minGuests}인 / 최대 {room.maxGuests}인</span></div>
-                <div className="text-gray-200 hidden sm:block">|</div>
-                <div className="flex items-center"><Calendar size={18} className="mr-2 text-blue-600" /><span className="font-semibold">체크인 15:00 / 체크아웃 11:00</span></div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <h4 className="text-lg font-bold text-gray-900 flex items-center"><span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>객실 상세 설명</h4>
-              <p className="text-[15px] text-gray-600 leading-relaxed whitespace-pre-wrap font-normal bg-gray-50/50 p-4 rounded-xl border border-gray-100">{room.description}</p>
+    <div className="fixed inset-0 z-[550] bg-white flex flex-col animate-in slide-in-from-right duration-300 overflow-y-auto hide-scrollbar">
+      {/* Header - Fixed & Fully Opaque, Matching Reservation style */}
+      <header className="sticky top-0 z-20 bg-white border-b border-gray-100 flex items-center px-4 py-4 w-full">
+        <button onClick={onClose} className="p-1"><ChevronLeft size={24} /></button>
+        <h2 className="flex-1 text-center font-bold text-lg mr-6">객실 상세보기</h2>
+      </header>
+
+      <div className="flex-1 bg-white pb-32">
+        <section className="w-full">
+          <MosaicGallery 
+            images={room.images} 
+            totalCount={room.images.length} 
+            id="room-detail-mosaic" 
+            onOpenGallery={(idx) => onOpenGallery(room.images, idx)} 
+          />
+        </section>
+        <div className="p-6 space-y-8">
+          <div>
+            <h3 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">객실 {room.name}</h3>
+            <div className="flex flex-wrap items-center text-gray-500 text-sm gap-y-2 gap-x-4 bg-gray-50 p-5 rounded-2xl">
+              <div className="flex items-center"><Users size={18} className="mr-2 text-blue-600" /><span className="font-semibold">기준 {room.minGuests}인 / 최대 {room.maxGuests}인</span></div>
+              <div className="text-gray-200 hidden sm:block">|</div>
+              <div className="flex items-center"><Calendar size={18} className="mr-2 text-blue-600" /><span className="font-semibold">체크인 15:00 / 체크아웃 11:00</span></div>
             </div>
           </div>
+          <div className="space-y-4">
+            <h4 className="text-lg font-bold text-gray-900 flex items-center"><span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>객실 상세 설명</h4>
+            <p className="text-[15px] text-gray-600 leading-relaxed whitespace-pre-wrap font-normal bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+              {room.description}
+            </p>
+          </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-xl border-t border-gray-100">
-          <button onClick={onReserve} className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-[0.98] transition-all text-lg">이 객실 예약하기</button>
-        </div>
+      </div>
+
+      {/* Bottom Fixed Button - Matching Reservation bottom bar */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 max-w-[480px] mx-auto z-30">
+        <button 
+          onClick={onReserve} 
+          className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-[0.98] transition-all text-lg"
+        >
+          이 객실 예약하기
+        </button>
       </div>
     </div>
   );
@@ -1145,7 +1159,7 @@ const App: React.FC = () => {
     ],
     minGuests: 2,
     maxGuests: 4,
-    description: "태안 엘플레이트풀빌라의 시그니처 객실인 D룸은 넓은 개별 온수풀과 프라이빗한 바베큐 공간을 제공합니다."
+    description: "태안 엘플레이트풀빌라의 시그니처 객실인 D룸은 넓은 개별 온수풀과 프라이빗한 바베큐 공간을 제공합니다.\n\n최고급 킹 사이즈 매트리스와 구스 침구로 편안한 휴식을 보장하며, 통창을 통해 들어오는 채광이 아름다운 객실입니다."
   };
 
   const allFacilities = [
@@ -1217,7 +1231,19 @@ const App: React.FC = () => {
         <ShortsPlayerModal videoId={activeShortId} onClose={() => setActiveShortId(null)} />
         <ReviewFrameModal isOpen={isReviewFrameModalOpen} onClose={() => setIsReviewFrameModalOpen(false)} />
         <ReviewsModal isOpen={isReviewsModalOpen} onClose={() => setIsReviewsModalOpen(false)} reviews={reviews} onReviewClick={handleReviewClick} />
-        <RoomInfoModal isOpen={isRoomInfoModalOpen} onClose={() => setIsRoomInfoModalOpen(false)} room={roomD} onOpenGallery={openGallery} onReserve={() => { setIsRoomInfoModalOpen(false); setIsReservationViewOpen(true); }} />
+        
+        {/* Room Info Transition View - Updated to match Reservation View behavior */}
+        <RoomInfoModal 
+          isOpen={isRoomInfoModalOpen} 
+          onClose={() => setIsRoomInfoModalOpen(false)} 
+          room={roomD} 
+          onOpenGallery={openGallery} 
+          onReserve={() => { 
+            setIsRoomInfoModalOpen(false); 
+            setIsReservationViewOpen(true); 
+          }} 
+        />
+
         <FacilitiesModal isOpen={isFacilitiesModalOpen} onClose={() => setIsFacilitiesModalOpen(false)} facilities={allFacilities} />
         
         <UnifiedBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} startDate={startDate} endDate={endDate} adults={adults} children={children} infants={infants} onDateSelect={(s, e) => { setStartDate(s); setEndDate(e); }} onGuestSelect={(a, c, i) => { setAdults(a); setChildren(c); setInfants(i); }} />
