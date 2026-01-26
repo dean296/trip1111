@@ -1339,7 +1339,7 @@ const App: React.FC = () => {
             </button>
 
             <button 
-              onClick={() => openReviewFrame('https://www.yanolja.com/')}
+              onClick={() => openReviewFrame('https://nol.yanolja.com/reviews/domestic/10044747')}
               className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl shadow-sm active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-3">
@@ -1350,7 +1350,7 @@ const App: React.FC = () => {
             </button>
 
             <button 
-              onClick={() => openReviewFrame('https://www.goodchoice.kr/')}
+              onClick={() => openReviewFrame('https://www.yeogi.com/domestic-accommodations/69714?checkIn=2026-01-26&checkOut=2026-01-27&personal=2')}
               className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl shadow-sm active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-3">
