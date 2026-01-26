@@ -147,7 +147,7 @@ const ShortsPlayerModal = ({ videoId, onClose }: { videoId: string | null, onClo
   const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&enablejsapi=1&origin=${origin}&rel=0&modestbranding=1`;
 
   return (
-    <div className="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={onClose}>
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[900] bg-black/90 flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={onClose}>
       <div className="relative w-full max-w-[360px] aspect-[9/16] bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10" onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full backdrop-blur-md active:scale-90 transition-transform">
           <X size={24} />
@@ -163,24 +163,23 @@ const ShortsPlayerModal = ({ videoId, onClose }: { videoId: string | null, onClo
   );
 };
 
-const ReviewFrameModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+const ReviewFrameModal = ({ isOpen, onClose, url }: { isOpen: boolean, onClose: () => void, url: string }) => {
   if (!isOpen) return null;
-  const reviewUrl = "https://m.place.naver.com/accommodation/1729836495/review/visitor?businessCategory=pension";
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-end justify-center bg-black/60 animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-[480px] h-[92vh] rounded-t-3xl flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[900] flex items-end justify-center bg-black/60 animate-in fade-in duration-300">
+      <div className="bg-white w-full h-[92vh] rounded-t-3xl flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
         <div className="flex-1 w-full bg-gray-50 relative">
           <iframe 
-            src={reviewUrl}
+            src={url}
             className="w-full h-full border-none"
-            title="Naver Map Review Frame"
+            title="Review Frame"
             sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
           ></iframe>
           <div className="absolute inset-0 flex items-center justify-center p-10 pointer-events-none opacity-0 hover:opacity-100 transition-opacity">
             <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl text-center shadow-lg border border-gray-200">
               <p className="text-xs text-gray-500 font-bold mb-2">프레임 내 로딩이 제한될 수 있습니다.</p>
-              <button className="text-xs font-black text-blue-600 underline pointer-events-auto" onClick={() => window.open(reviewUrl, '_blank')}>새 창에서 보기</button>
+              <button className="text-xs font-black text-blue-600 underline pointer-events-auto" onClick={() => window.open(url, '_blank')}>새 창에서 보기</button>
             </div>
           </div>
         </div>
@@ -197,58 +196,17 @@ const ReviewFrameModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
   );
 };
 
-const ReviewsModal = ({ isOpen, onClose, reviews, onReviewClick }: { isOpen: boolean, onClose: () => void, reviews: any[], onReviewClick: () => void }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-[150] flex items-end justify-center bg-black/50">
-      <div className="bg-white w-full max-w-[480px] h-[85vh] rounded-t-3xl flex flex-col p-6 animate-in slide-in-from-bottom duration-300 shadow-2xl">
-        <div className="flex justify-between items-center mb-6 shrink-0">
-          <h3 className="text-xl font-bold">전체 리뷰</h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
-        </div>
-        <div className="flex-1 overflow-y-auto space-y-6 pr-1 hide-scrollbar">
-          {reviews.map((review) => (
-            <div 
-              key={review.id} 
-              className="border-b border-gray-100 pb-6 last:border-0 cursor-pointer active:bg-gray-50 transition-colors"
-              onClick={onReviewClick}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <PlatformIcon type={review.platform} />
-                <span className="text-[11px] font-bold text-gray-700">{maskId(review.userId)}</span>
-                <RatingDisplay platform={review.platform} rating={review.rating} />
-                <span className="text-gray-400 text-xs ml-auto">{review.date}</span>
-              </div>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                {review.text}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="pt-4 border-t border-gray-100 mt-4">
-          <button 
-            onClick={onClose}
-            className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all text-lg"
-          >
-            닫기
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const RoomInfoModal = ({ isOpen, onClose, room, onOpenGallery, onReserve }: { isOpen: boolean, onClose: () => void, room: any, onOpenGallery: (imgs: string[], idx: number) => void, onReserve: () => void }) => {
   if (!isOpen || !room) return null;
   return (
-    <div className="fixed inset-0 z-[550] bg-white flex flex-col animate-in slide-in-from-right duration-300 overflow-y-auto hide-scrollbar">
-      {/* Header - Fixed & Fully Opaque, Matching Reservation style */}
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[550] bg-white flex flex-col animate-in slide-in-from-right duration-300 overflow-y-auto hide-scrollbar shadow-2xl">
+      {/* Header - Fixed & Fully Opaque */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-100 flex items-center px-4 py-4 w-full">
         <button onClick={onClose} className="p-1"><ChevronLeft size={24} /></button>
         <h2 className="flex-1 text-center font-bold text-lg mr-6">객실 상세보기</h2>
       </header>
 
-      <div className="flex-1 bg-white pb-32">
+      <div className="flex-1 bg-white">
         <section className="w-full">
           <MosaicGallery 
             images={room.images} 
@@ -257,7 +215,7 @@ const RoomInfoModal = ({ isOpen, onClose, room, onOpenGallery, onReserve }: { is
             onOpenGallery={(idx) => onOpenGallery(room.images, idx)} 
           />
         </section>
-        <div className="p-6 space-y-8">
+        <div className="p-6 space-y-8 pb-10">
           <div>
             <h3 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">객실 {room.name}</h3>
             <div className="flex flex-wrap items-center text-gray-500 text-sm gap-y-2 gap-x-4 bg-gray-50 p-5 rounded-2xl">
@@ -275,8 +233,8 @@ const RoomInfoModal = ({ isOpen, onClose, room, onOpenGallery, onReserve }: { is
         </div>
       </div>
 
-      {/* Bottom Fixed Button - Matching Reservation bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 max-w-[480px] mx-auto z-30">
+      {/* Bottom Sticky Button - Fixed Docked at bottom of viewport */}
+      <div className="sticky bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <button 
           onClick={onReserve} 
           className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-[0.98] transition-all text-lg"
@@ -372,8 +330,8 @@ const UnifiedBookingModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-end justify-center bg-black/50" onClick={onClose}>
-      <div className="bg-white w-full max-w-[480px] h-[90vh] rounded-t-3xl flex flex-col p-6 animate-in slide-in-from-bottom duration-300 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[850] flex items-end justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-white w-full h-[90vh] rounded-t-3xl flex flex-col p-6 animate-in slide-in-from-bottom duration-300 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6 shrink-0">
           <h3 className="text-xl font-bold">일정 및 인원 선택</h3>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
@@ -521,7 +479,7 @@ const ImageGalleryModal = ({ isOpen, onClose, images, activeIndex, setActiveInde
   };
 
   return (
-    <div className="fixed inset-0 z-[400] bg-black flex flex-col animate-in fade-in duration-300">
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[800] bg-black flex flex-col animate-in fade-in duration-300">
       <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center text-white z-10 bg-gradient-to-b from-black/50 to-transparent">
         <span className="font-bold tracking-widest">{activeIndex + 1} / {images.length}</span>
         <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X size={28} /></button>
@@ -562,8 +520,8 @@ const ImageGalleryModal = ({ isOpen, onClose, images, activeIndex, setActiveInde
 const AgreementTermModal = ({ isOpen, title, onClose, onAgree }: { isOpen: boolean, title: string, onClose: () => void, onAgree: () => void }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[1000] flex items-end justify-center bg-black/50 animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-[480px] h-[70vh] rounded-t-3xl flex flex-col p-6 shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[1000] flex items-end justify-center bg-black/50 animate-in fade-in duration-300">
+      <div className="bg-white w-full h-[70vh] rounded-t-3xl flex flex-col p-6 shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
         <div className="flex justify-between items-center mb-6 shrink-0 border-b border-gray-100 pb-4">
           <h3 className="text-xl font-bold">{title}</h3>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
@@ -589,8 +547,8 @@ const AgreementTermModal = ({ isOpen, title, onClose, onAgree }: { isOpen: boole
 const FacilitiesModal = ({ isOpen, onClose, facilities }: { isOpen: boolean, onClose: () => void, facilities: any[] }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[550] flex items-end justify-center bg-black/50 animate-in fade-in duration-300" onClick={onClose}>
-      <div className="bg-white w-full max-w-[480px] h-[70vh] rounded-t-3xl flex flex-col p-6 shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[750] flex items-end justify-center bg-black/50 animate-in fade-in duration-300" onClick={onClose}>
+      <div className="bg-white w-full h-[70vh] rounded-t-3xl flex flex-col p-6 shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6 shrink-0 border-b border-gray-100 pb-4">
           <h3 className="text-xl font-bold">숙소 테마 및 시설</h3>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
@@ -603,6 +561,42 @@ const FacilitiesModal = ({ isOpen, onClose, facilities }: { isOpen: boolean, onC
                   <item.icon size={24} strokeWidth={1.5} />
                 </div>
                 <span className="text-[15px] font-bold text-gray-700">{item.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="pt-6 mt-4 border-t border-gray-100">
+          <button 
+            onClick={onClose}
+            className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all text-lg"
+          >
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Attractions Modal ---
+const AttractionsModal = ({ isOpen, onClose, attractions }: { isOpen: boolean, onClose: () => void, attractions: any[] }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[750] flex items-end justify-center bg-black/50 animate-in fade-in duration-300" onClick={onClose}>
+      <div className="bg-white w-full h-[70vh] rounded-t-3xl flex flex-col p-6 shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6 shrink-0 border-b border-gray-100 pb-4">
+          <h3 className="text-xl font-bold">주변 관광지</h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto pr-1 hide-scrollbar">
+          <div className="flex flex-col gap-y-3.5 py-4">
+            {attractions.map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
+                <div className="flex items-center gap-2.5 truncate">
+                  <div className="p-1.5 bg-blue-50 rounded-md text-blue-500 shrink-0"><MapPin size={12} className="fill-current" /></div>
+                  <span className="text-[14px] font-bold text-gray-800 truncate">{item.name}</span>
+                </div>
+                <span className="text-[11px] font-black text-blue-600 bg-blue-50/50 px-2 py-0.5 rounded shrink-0 ml-2">{item.distance}</span>
               </div>
             ))}
           </div>
@@ -790,7 +784,7 @@ const ReservationView = ({
   const isAgreedAll = Object.values(agreements).every(v => v);
 
   return (
-    <div className="fixed inset-0 z-[600] bg-white flex flex-col animate-in slide-in-from-right duration-300 overflow-y-auto hide-scrollbar">
+    <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[600] bg-white flex flex-col animate-in slide-in-from-right duration-300 overflow-y-auto hide-scrollbar shadow-2xl">
       <AgreementTermModal 
         isOpen={!!activeAgreementModal} 
         title={activeAgreementModal || ''} 
@@ -806,7 +800,7 @@ const ReservationView = ({
         <button onClick={onClose} className="p-1"><ChevronLeft size={24} /></button>
         <h2 className="flex-1 text-center font-bold text-lg mr-6">예약</h2>
       </header>
-      <div className="flex-1 bg-gray-50 pb-32">
+      <div className="flex-1 bg-gray-50 pb-0">
         <div className="p-4 bg-white">
           <div className="bg-[#121212] p-5 rounded-2xl border border-gray-800 mb-4 shadow-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 -mr-4 -mt-4 p-10 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all duration-700"></div>
@@ -1018,7 +1012,7 @@ const ReservationView = ({
             </div>
           </div>
         </section>
-        <section className="bg-white p-5 space-y-6" ref={agreementRef}>
+        <section className="bg-white p-5 space-y-6 mb-32" ref={agreementRef}>
           <div className="flex items-center gap-3 py-4 border-b border-gray-100 cursor-pointer" onClick={handleAgreedAll}>
             <div className={`p-1 rounded-md transition-colors ${isAgreedAll ? 'bg-blue-600' : 'bg-gray-100'}`}>
               <Check size={20} className="text-white" />
@@ -1054,7 +1048,9 @@ const ReservationView = ({
         </section>
         <SharedFooter />
       </div>
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 max-w-[480px] mx-auto z-[610]">
+
+      {/* FIXED BOTTOM ACTION BAR - Corrected Position */}
+      <div className="sticky bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 z-[610] shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <button 
           onClick={handlePayment}
           className={`w-full font-bold py-4 rounded-xl shadow-lg text-lg transition-all ${
@@ -1085,19 +1081,19 @@ const App: React.FC = () => {
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false);
   const [isRoomInfoModalOpen, setIsRoomInfoModalOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryActiveIndex, setGalleryActiveIndex] = useState(0);
   const [currentGalleryImages, setCurrentGalleryImages] = useState<string[]>([]);
   const [activeShortId, setActiveShortId] = useState<string | null>(null);
   const [isReviewFrameModalOpen, setIsReviewFrameModalOpen] = useState(false);
+  const [reviewFrameUrl, setReviewFrameUrl] = useState('');
   const [isReservationViewOpen, setIsReservationViewOpen] = useState(false);
   const [isFacilitiesModalOpen, setIsFacilitiesModalOpen] = useState(false);
+  const [isAttractionsModalOpen, setIsAttractionsModalOpen] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState<number>(24 * 60 * 60);
-  const [showAllAttractions, setShowAllAttractions] = useState(false);
 
-  const isAnyModalOpen = isBookingModalOpen || isReviewsModalOpen || isRoomInfoModalOpen || isGalleryOpen || activeShortId !== null || isReviewFrameModalOpen || isReservationViewOpen || isFacilitiesModalOpen;
+  const isAnyModalOpen = isBookingModalOpen || isRoomInfoModalOpen || isGalleryOpen || activeShortId !== null || isReviewFrameModalOpen || isReservationViewOpen || isFacilitiesModalOpen || isAttractionsModalOpen;
 
   useEffect(() => {
     if (isAnyModalOpen) {
@@ -1175,12 +1171,6 @@ const App: React.FC = () => {
     { icon: Gift, name: "어메니티제공" }
   ];
 
-  const reviews = [
-    { id: 1, platform: 'Naver', userId: 'kimsky12', rating: 0, date: '2025.05.21', text: '가족과 함께 방문했습니다. 결론부터 말씀드리자면, 시설이 정말 훌륭했습니다. 특히 수영장이 너무 깨끗해서 아이들이 정말 좋아했어요.' },
-    { id: 2, platform: 'Yanolja', userId: 'sunnyday99', rating: 5.0, date: '2025.05.15', text: '사장님이 너무 친절하시고 숙소가 정말 깨끗해요! 온수풀도 밤늦게까지 따뜻하게 유지되어서 좋았습니다.' },
-    { id: 3, platform: 'Yeogiyeottae', userId: 'traveler_jeon', rating: 9.8, date: '2025.05.02', text: '태안 여행 중 최고의 선택이었습니다. 개별 바베큐장도 잘 되어 있고 프라이빗하게 쉴 수 있어서 좋았습니다.' }
-  ];
-
   const attractions = [
     { name: "속초문화원", distance: "1.18km" },
     { name: "속초문화예술회관 소강당", distance: "1.21km" },
@@ -1205,7 +1195,8 @@ const App: React.FC = () => {
     setIsGalleryOpen(true);
   };
 
-  const handleReviewClick = () => {
+  const openReviewFrame = (url: string) => {
+    setReviewFrameUrl(url);
     setIsReviewFrameModalOpen(true);
   };
 
@@ -1229,10 +1220,8 @@ const App: React.FC = () => {
 
       <div className="pt-[52px]">
         <ShortsPlayerModal videoId={activeShortId} onClose={() => setActiveShortId(null)} />
-        <ReviewFrameModal isOpen={isReviewFrameModalOpen} onClose={() => setIsReviewFrameModalOpen(false)} />
-        <ReviewsModal isOpen={isReviewsModalOpen} onClose={() => setIsReviewsModalOpen(false)} reviews={reviews} onReviewClick={handleReviewClick} />
+        <ReviewFrameModal isOpen={isReviewFrameModalOpen} onClose={() => setIsReviewFrameModalOpen(false)} url={reviewFrameUrl} />
         
-        {/* Room Info Transition View - Updated to match Reservation View behavior */}
         <RoomInfoModal 
           isOpen={isRoomInfoModalOpen} 
           onClose={() => setIsRoomInfoModalOpen(false)} 
@@ -1245,6 +1234,7 @@ const App: React.FC = () => {
         />
 
         <FacilitiesModal isOpen={isFacilitiesModalOpen} onClose={() => setIsFacilitiesModalOpen(false)} facilities={allFacilities} />
+        <AttractionsModal isOpen={isAttractionsModalOpen} onClose={() => setIsAttractionsModalOpen(false)} attractions={attractions} />
         
         <UnifiedBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} startDate={startDate} endDate={endDate} adults={adults} children={children} infants={infants} onDateSelect={(s, e) => { setStartDate(s); setEndDate(e); }} onGuestSelect={(a, c, i) => { setAdults(a); setChildren(c); setInfants(i); }} />
         <ReservationView isOpen={isReservationViewOpen} onClose={() => setIsReservationViewOpen(false)} room={roomD} startDate={startDate} endDate={endDate} adults={adults} children={children} infants={infants} secondsRemaining={secondsRemaining} />
@@ -1329,25 +1319,46 @@ const App: React.FC = () => {
 
         {/* Visitor Reviews Section */}
         <section className="px-5 mb-8 mt-6">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-5">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
-              방문객 리뷰(128)
+              방문객 리뷰
             </h2>
-            <button onClick={() => setIsReviewsModalOpen(true)} className="text-sm font-semibold text-gray-800 underline active:text-blue-600">전체보기</button>
           </div>
-          <div className="flex flex-col space-y-3 pb-2">
-            {reviews.slice(0, 3).map((review) => (
-              <div key={review.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm active:bg-gray-50 cursor-pointer transition-colors" onClick={handleReviewClick}>
-                <div className="flex items-center gap-2 mb-2">
-                  <PlatformIcon type={review.platform as any} />
-                  <span className="text-[11px] font-bold text-gray-700">{maskId(review.userId)}</span>
-                  <RatingDisplay platform={review.platform} rating={review.rating} />
-                  <span className="text-gray-400 text-[10px] ml-auto font-medium">{review.date}</span>
-                </div>
-                <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">{review.text}</p>
+          
+          <div className="flex flex-col gap-3">
+            <button 
+              onClick={() => openReviewFrame('https://m.place.naver.com/accommodation/1729836495/review/visitor')}
+              className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl shadow-sm active:scale-[0.98] transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <PlatformIcon type="Naver" />
+                <span className="text-[14px] font-bold text-gray-800">네이버 리뷰 보러가기</span>
               </div>
-            ))}
+              <ChevronRight size={18} className="text-gray-300" />
+            </button>
+
+            <button 
+              onClick={() => openReviewFrame('https://www.yanolja.com/')}
+              className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl shadow-sm active:scale-[0.98] transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <PlatformIcon type="Yanolja" />
+                <span className="text-[14px] font-bold text-gray-800">야놀자 리뷰 보러가기</span>
+              </div>
+              <ChevronRight size={18} className="text-gray-300" />
+            </button>
+
+            <button 
+              onClick={() => openReviewFrame('https://www.goodchoice.kr/')}
+              className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl shadow-sm active:scale-[0.98] transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <PlatformIcon type="Yeogiyeottae" />
+                <span className="text-[14px] font-bold text-gray-800">여기어때 리뷰 보러가기</span>
+              </div>
+              <ChevronRight size={18} className="text-gray-300" />
+            </button>
           </div>
         </section>
 
@@ -1404,14 +1415,15 @@ const App: React.FC = () => {
           </div>
         </section>
 
+        {/* Attractions Section */}
         <section className="px-5 mb-10">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold flex items-center gap-2"><span className="w-1 h-5 bg-blue-600 rounded-full"></span>주변 관광지({attractions.length})</h2>
-            <button onClick={() => setShowAllAttractions(!showAllAttractions)} className="text-sm font-semibold text-gray-800 underline active:text-blue-600">{showAllAttractions ? '접기' : '전체보기'}</button>
+            <h2 className="text-xl font-bold flex items-center gap-2"><span className="w-1 h-5 bg-blue-600 rounded-full"></span>주변 관광지</h2>
+            <button onClick={() => setIsAttractionsModalOpen(true)} className="text-sm font-semibold text-gray-800 underline active:text-blue-600">전체보기</button>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5 transition-all duration-300">
-            {(showAllAttractions ? attractions : attractions.slice(0, 3)).map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0 sm:border-b sm:border-gray-50/50">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-y-3.5">
+            {attractions.slice(0, 3).map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
                 <div className="flex items-center gap-2.5 truncate">
                   <div className="p-1.5 bg-blue-50 rounded-md text-blue-500 shrink-0"><MapPin size={12} className="fill-current" /></div>
                   <span className="text-[13px] font-bold text-gray-800 truncate">{item.name}</span>
@@ -1422,7 +1434,7 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* Detailed Accommodation Information Section (Restored) */}
+        {/* Detailed Accommodation Information Section */}
         <section className="px-6 py-12 bg-white border-t border-gray-100">
           <div className="max-w-[420px] mx-auto">
             <h2 className="text-xl font-bold text-gray-900 mb-8 tracking-tight flex items-center gap-2">
@@ -1463,7 +1475,7 @@ const App: React.FC = () => {
         </section>
 
         <SharedFooter />
-        {!isRoomInfoModalOpen && !isReservationViewOpen && (
+        {!isAnyModalOpen && (
           <div className="fixed bottom-6 right-6 z-[120] animate-in slide-in-from-bottom duration-500">
             <button className="bg-blue-600 text-white flex items-center gap-2 px-5 py-3.5 rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-all group">
               <MessageCircle size={22} className="group-hover:rotate-12 transition-transform" />
