@@ -1,0 +1,7 @@
+{
+  "name": "BookingPlay Partner Concierge",
+  "description": "A premium, AI-enhanced support portal for BookingPlay partners, replacing a basic chat interface with a world-class service hub.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
